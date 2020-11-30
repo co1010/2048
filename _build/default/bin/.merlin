@@ -1,0 +1,16 @@
+EXCLUDE_QUERY_DIR
+B /home/co1010/.opam/default/lib/animate
+B /home/co1010/.opam/default/lib/cairo2
+B /home/co1010/.opam/default/lib/cairo2-gtk
+B /home/co1010/.opam/default/lib/lablgtk2
+B /usr/lib/ocaml
+B /usr/lib/ocaml/threads
+B ../_build/default/bin/.main.eobjs/byte
+S /home/co1010/.opam/default/lib/animate
+S /home/co1010/.opam/default/lib/cairo2
+S /home/co1010/.opam/default/lib/cairo2-gtk
+S /home/co1010/.opam/default/lib/lablgtk2
+S /usr/lib/ocaml
+S /usr/lib/ocaml/threads
+S .
+FLG -open Dune__exe -opaque
