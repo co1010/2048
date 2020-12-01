@@ -8,9 +8,9 @@ Takes a model and outputs an image based on the model. If the game is over displ
 
 ### Update function
 Takes a model and outputs a new model. Two step process.
-- addMatching() : model -> model
+- **addMatching() : model -> model**
   - Adds and combines matching numbers that will collide with button press
-- condenseNumbers() : model -> model
+- **condenseNumbers() : model -> model**
   - Moves numbers in the direction of the button press.
   
 ### Other functions
