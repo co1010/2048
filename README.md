@@ -14,10 +14,10 @@ Takes a model and outputs a new model. Two step process.
   * Moves numbers in the direction of the button press.
   
 ### Other functions
-##### addNewTile() : model -> model
+#### addNewTile() : model -> model
 Adds a 2 or 4 tile randomly to an empty tile. Assume there will be an empty tile.
 
-##### checkGameEnd() : model -> int
+#### checkGameEnd() : model -> int
 Outputs 0 if game is not over, 1 if player loses, 2 if player wins. Might switch this to a type later.
 Win if a tile is 2048.
 Loss if there are no 0 tiles on game board AND there are no matching adjacent tiles.
