@@ -33,6 +33,11 @@ type model = { state : state
              ; count : count
              }
 
+type model2048 = { board : int array array
+                 ; isWin : bool
+                 ; isLoss : bool
+                 }
+
 let getFile () =
   Lib.fmt "%s/%s" (Unix.getcwd()) Sys.argv.(1)
 
@@ -61,7 +66,7 @@ let readColony file =
 
 (* touchPad : model x y event -> model
 *)
-let touchPad model x y event = 
+let touchPad model x y event =
   let newState = toggle model.state in
   { state = newState
   ; n = model.n
@@ -76,7 +81,7 @@ let sumNeighbors colony i j =
   sum
 
 (* update : model -> model *)
-let update model = 
+let update model =
   if model.state = Paused then model else
   let colony = model.colony in
   let rows = Array.length colony in
@@ -109,7 +114,7 @@ let update model =
 
 
 (* view : model -> Image.t *)
-let view model = 
+let view model =
   let colony = model.colony in
   let rows = Array.length colony in
   let cols = Array.length colony.(0) in
@@ -128,7 +133,7 @@ let view model =
   !image
 
 (* finished : model -> bool *)
-let finished model = 
+let finished model =
   if model.n = 0 then true else false
 
 (* makeWorkSpace : colony -> colony *)
@@ -149,8 +154,19 @@ let makeModel n filename =
   ; count = workSpace
   }
 
+(*makeModel2048 : unit -> model2048*)
+let makeModel2048 =
+  let initialboard = Array.make_matrix 6 6 0 in
+  let initWin = false in
+  let initLoss = false in
+  { board = initialboard
+  ; isWin = initWin
+  ; isLoss = initLoss
+
+  }
+
 let go n filename =
-  let initialModel = makeModel n filename
+  let initialModel = makeModel2048
   in
   Animate.start initialModel
                  ~name: "Conway's Life Automata"
