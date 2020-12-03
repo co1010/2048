@@ -154,16 +154,34 @@ let makeModel n filename =
   ; count = workSpace
   }
 
+
+(*random2and4 : unit -> int*)
+(*returns either a 0, 2, or 4 to be added to a empty square,
+  not implemented yet b/c I want to figure out the randomness factors for
+  each possible return *)
+let random2and4 = 0
+
+(*populateBoard : unit -> model2048.board*)
+let initialBoard =
+  let board = Array.make_matrix 6 6 0 in
+    for i = 1 to 5 do (*can make this more general if needed, but just used fix numbers since the board dimensions are known*)
+      for j = 1 to 5 do
+        let random = random2and4 in
+        board.(i).(j) <- random;
+      done ;
+    done
+  ; board
+
 (*makeModel2048 : unit -> model2048*)
 let makeModel2048 =
-  let initialboard = Array.make_matrix 6 6 0 in
+  let initialboard = initialBoard in
   let initWin = false in
   let initLoss = false in
   { board = initialboard
   ; isWin = initWin
   ; isLoss = initLoss
-
   }
+
 
 let go n filename =
   let initialModel = makeModel2048
