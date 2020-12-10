@@ -164,37 +164,66 @@ let makeWorkSpace colony =
 
     (*++++++++++++++++++++++++++++++++++++++++++ Our Program ++++++++++++++++++++++++++++*)
 
-(*NB might be an error in the big funcion below where with index out of bounds
+(*NB may be some nonsyntax errors below but everything works out in theory
   *)
 (*upArrow : model -> model*)
 let upArrow model =
   for row = 1 to 4 do
     for col = 1 to 4 do
-      if model.board.(row).(col) = model.board.(row - 1).(col) then
-        begin
-          (model.board.(row).(col) <- model.board.(row).(col) * 2;)
-        end
-      else ();
-      if model.board.(row).(col) = 0 then
-        begin
-         if model.board.(row - 1).(col) = model.board.(row - 2).(col) then
-           (model.board.(row - 1).(col) <- model.board.(row - 1).(col) * 2;)
-         else
-           (model.board.(row).(col) <- model.board.(row - 1).(col);)
-       end
+        let rowBelow = row - 1 in
+        if model.board.(row).(col) = model.board.(rowBelow).(col) then
+          begin
+            (model.board.(row).(col) <- model.board.(row).(col) * 2;
+             model.board.(rowBelow).(col) <- 0;)
+          end
     done ;
   done ;
   model
 
 
 (*downArrow : model -> model*)
-let downArrow model = model
+let downArrow model =
+  for row = 1 to 4 do
+    for col = 1 to 4 do
+      let invRow = 5 - row in
+      let rowAbove = invRow - 1 in
+      if model.board.(invRow).(col) = model.board.(rowAbove).(col) then
+          begin
+            (model.board.(invRow).(col) <- model.board.(invRow).(col) * 2;
+             model.board.(rowAbove).(col) <- 0;)
+          end
+    done ;
+  done ;
+  model
 
 (*leftArrow : model -> model*)
-let leftArrow model = model
+let leftArrow model =
+  for row = 1 to 4 do
+    for col = 1 to 4 do
+      let colRight = col + 1 in
+      if model.board.(row).(col) = model.board.(row).(colRight) then
+          begin
+            (model.board.(row).(col) <- model.board.(row).(col) * 2;
+             model.board.(row).(colRight) <- 0;)
+          end
+    done ;
+  done ;
+model
 
 (*rightArrow : model -> model*)
-let rightArrow model = model
+let rightArrow model =
+for row = 1 to 4 do
+  for col = 1 to 4 do
+    let invCol = 5 - col in
+    let colLeft = invCol - 1 in (*right??*)
+    if model.board.(row).(invCol) = model.board.(row).(colLeft) then
+        begin
+          (model.board.(row).(invCol) <- model.board.(row).(invCol) * 2;
+           model.board.(row).(colLeft) <- 0;)
+        end
+  done ;
+done ;
+model
 
 
 let addMatching model =
@@ -205,15 +234,80 @@ let addMatching model =
   | RightArrow -> rightArrow model
   | None -> model
 
+(*rightCond : model -> model*)
+let upCond model =
+  for row = 1 to 4 do (*maybe we only have to do the first three rows, anthing in the bottom row will be moved up anyways*)
+      for col = 1 to 4 do
+        let rowBelow = row - 1 in
+        if model.board.(row).(col) = 0 then
+          begin
+            model.board.(row).(col) <- model.board.(rowBelow).(col);
+            model.board.(rowBelow).(col) <- 0;
+          end
+      done;
+    done;
+  model
+
+(*downCond : model -> model*)
+let downCond model =
+  for row = 1 to 4 do (*maybe we only have to do the first three rows, anthing in the top row will be down up anyways*)
+      for col = 1 to 4 do
+        let invRow = 5 - row in
+        let rowAbove = invRow - 1 in
+        if model.board.(invRow).(col) = 0 then
+          begin
+            model.board.(invRow).(col) <- model.board.(rowAbove).(col);
+            model.board.(rowAbove).(col) <- 0;
+          end
+      done;
+    done;
+  model
+
+(*leftCond : model -> model*)
+let leftCond model =
+    for row = 1 to 4 do
+        for col = 1 to 4 do
+          let colRight = col + 1 in
+          if model.board.(row).(col) = 0 then
+            begin
+              model.board.(row).(col) <- model.board.(row).(colRight);
+              model.board.(row).(colRight) <- 0;
+            end
+        done;
+      done;
+    model
+
+(*rightCond : model -> model*)
+let rightCond model =
+for row = 1 to 4 do
+    for col = 1 to 4 do
+      let invCol = 5 - col in
+      let colLeft = invCol - 1 in
+      if model.board.(row).(invCol) = 0 then
+        begin
+          model.board.(row).(invCol) <- model.board.(row).(colLeft);
+          model.board.(row).(colLeft) <- 0;
+        end
+    done;
+  done;
+model
+
 (*needs implementing*)
 (*condenseNumbers : model -> model*)
-let condenseNumbers model = model
+let condenseNumbers model =
+  match model.lastInput with
+  | UpArrow -> upCond model
+  | DownArrow -> downCond model
+  | LeftArrow -> leftCond model
+  | RightArrow -> rightCond model
+  | None -> model
 
+(*update : model -> model*)
 let update model =
-  let newModel1 = addMatching model in
-  let newModel2 = condenseNumbers newModel1
+  let addMatchedModel = addMatching model in
+  let condensedModel = condenseNumbers addMatchedModel
   in
-  newModel2
+  condensedModel
 
 
 
