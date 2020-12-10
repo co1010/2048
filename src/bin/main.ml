@@ -16,7 +16,7 @@ let displayHeight = displayWidth
 let cubeColor = Color.orange
 let noCube = Color.white
 
-type state = Paused | Running
+(* type state = Paused | Running
 
 (* toggle : state -> state *)
 let toggle state =
@@ -31,7 +31,7 @@ type model = { state : state
              ; n : int
              ; colony : colony
              ; count : count
-             }
+             } *)
 
 type input = | UpArrow
              | DownArrow
@@ -74,13 +74,13 @@ let readColony file =
 
 (* touchPad : model x y event -> model
 *)
-let touchPad model x y event =
+(* let touchPad model x y event =
   let newState = toggle model.state in
   { state = newState
   ; n = model.n
   ; colony = model.colony
   ; count = model.count
-  }
+  } *)
 
 (* sumNeighbors : colony i j -> int *)
 let sumNeighbors colony i j =
@@ -141,8 +141,8 @@ let sumNeighbors colony i j =
   !image *)
 
 (* finished : model -> bool *)
-let finished model =
-  if model.n = 0 then true else false
+(* let finished model =
+  if model.n = 0 then true else false *)
 
 (* makeWorkSpace : colony -> colony *)
 let makeWorkSpace colony =
@@ -187,23 +187,43 @@ let upArrow model =
   model
 
 
+(*downArrow : model -> model*)
+let downArrow model = model
+
+(*leftArrow : model -> model*)
+let leftArrow model = model
+
+(*rightArrow : model -> model*)
+let rightArrow model = model
 
 
-let update model =
+let addMatching model =
   match model.lastInput with
   | UpArrow -> upArrow model
-  | DownArrow -> model
-  | LeftArrow -> model
-  | RightArrow -> model
+  | DownArrow -> downArrow model
+  | LeftArrow -> leftArrow model
+  | RightArrow -> rightArrow model
   | None -> model
 
+(*needs implementing*)
+(*condenseNumbers : model -> model*)
+let condenseNumbers model = model
+
+let update model =
+  let newModel1 = addMatching model in
+  let newModel2 = condenseNumbers newModel1
+  in
+  newModel2
 
 
-(*random2and4 : unit -> int*)
+
+
+
+(*either2or4 : unit -> int*)
 (*returns either a 0, 2, or 4 to be added to a empty square,
   not implemented yet b/c I want to figure out the randomness factors for
   each possible return *)
-let either2or4 =
+let either2or4 () =
   let randInt = Random.int 10 in
   match randInt <= 9 with
   | true -> 2
@@ -221,7 +241,7 @@ let populate2and4 model =
   let zeroLocals = !zeroLocalsRef in
   let zeroCount = Array.length zeroLocals in
   let whichSquare = Random.int zeroCount in
-  let whichNumber = either2or4 in
+  let whichNumber = either2or4 () in
   let xandy = zeroLocals.(whichSquare) in
   let x = fst(xandy) in
   let y = snd(xandy) in
