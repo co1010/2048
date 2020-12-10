@@ -39,7 +39,7 @@ type input = | UpArrow
              | RightArrow
              | None
 
-type model2048 = { board : int array array
+type model = { board : int array array
                  ; isWin : bool
                  ; isLoss : bool
                  ; lastInput : input
@@ -162,7 +162,8 @@ let makeWorkSpace colony =
   ; count = workSpace
   } *)
 
-    (*++++++++++++++++++++++++++++++++++++++++++ Our Program ++++++++++++++++++++++++++++*)
+(*++++++++++++++++++++++++++++++++++++ Our Program ++++++++++++++++++++++++++++++++++*)
+(*<<<<<<<<<<<<<<<<<<<<<<<<<<<update finction and subfunctions >>>>>>>>>>>>>>>>>>>>>>>*)
 
 (*NB may be some nonsyntax errors below but everything works out in theory
   *)
@@ -292,7 +293,7 @@ for row = 1 to 4 do
   done;
 model
 
-(*needs implementing*)
+
 (*condenseNumbers : model -> model*)
 let condenseNumbers model =
   match model.lastInput with
@@ -302,17 +303,25 @@ let condenseNumbers model =
   | RightArrow -> rightCond model
   | None -> model
 
+(*NB needs implementing*)
+(*winCheck : model -> model*)
+let winCheck model = model
+
+(*NB needs implementing*)
+(*lossCheck : model -> model*)
+let lossCheck model = model
+
 (*update : model -> model*)
 let update model =
   let addMatchedModel = addMatching model in
-  let condensedModel = condenseNumbers addMatchedModel
+  let condensedModel = condenseNumbers addMatchedModel in
+  let winCheckedModel = winCheck condensedModel in
+  let lossCheckedModel = lossCheck winCheckedModel
   in
-  condensedModel
+  lossCheckedModel
 
 
-
-
-
+(*<<<<<<<<<<<<<<<<<<<<<<< Generation of twos and fours >>>>>>>>>>>>>>>>>>>>>>>*)
 (*either2or4 : unit -> int*)
 (*returns either a 0, 2, or 4 to be added to a empty square,
   not implemented yet b/c I want to figure out the randomness factors for
