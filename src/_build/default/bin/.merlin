@@ -13,4 +13,4 @@ S /home/co1010/.opam/default/lib/lablgtk2
 S /usr/lib/ocaml
 S /usr/lib/ocaml/threads
 S .
-FLG -open Dune__exe -opaque
+FLG -opaque

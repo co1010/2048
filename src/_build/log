@@ -1,10 +1,10 @@
-# dune exec bin/main.exe ../examples/two.txt
+# dune exec bin/main.exe
 # OCAMLPARAM: unset
-# Workspace root: /home/co1010/csci1103/ps8-co1010/src
-$ /usr/bin/nproc > /tmp/dunea10fd3.output 2> /dev/null
+# Workspace root: /home/co1010/csci1103/2048/src
+$ /usr/bin/nproc > /tmp/duneea465f.output 2> /dev/null
 # Auto-detected concurrency: 12
 # disable binary cache
-$ /usr/bin/ocamlc.opt -config > /tmp/dune482f85.output
+$ /usr/bin/ocamlc.opt -config > /tmp/dune8ac61f.output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -22,14 +22,13 @@ $ /usr/bin/ocamlc.opt -config > /tmp/dune482f85.output
 #  ; ocamlmklib = Ok External "/usr/bin/ocamlmklib.opt"
 #  ; env =
 #      map
-#        { "INSIDE_DUNE" :
-#            "/home/co1010/csci1103/ps8-co1010/src/_build/default"
+#        { "INSIDE_DUNE" : "/home/co1010/csci1103/2048/src/_build/default"
 #        ; "OCAMLFIND_IGNORE_DUPS_IN" :
-#            "/home/co1010/csci1103/ps8-co1010/src/_build/install/default/lib"
+#            "/home/co1010/csci1103/2048/src/_build/install/default/lib"
 #        ; "OCAMLPATH" :
-#            "/home/co1010/csci1103/ps8-co1010/src/_build/install/default/lib"
+#            "/home/co1010/csci1103/2048/src/_build/install/default/lib"
 #        ; "OCAMLTOP_INCLUDE_PATH" :
-#            "/home/co1010/csci1103/ps8-co1010/src/_build/install/default/lib/toplevel"
+#            "/home/co1010/csci1103/2048/src/_build/install/default/lib/toplevel"
 #        ; "OCAML_COLOR" : "always"
 #        ; "OPAMCOLOR" : "always"
 #        }
@@ -105,4 +104,8 @@ $ /usr/bin/ocamlc.opt -config > /tmp/dune482f85.output
 #      ; windows_unicode = false
 #      }
 #  }
-# Workspace root: /home/co1010/csci1103/ps8-co1010/src
+# Workspace root: /home/co1010/csci1103/2048/src
+$ (cd _build/default && /usr/bin/ocamldep.opt -modules -impl bin/main.ml) > _build/default/bin/.main.eobjs/main.ml.d
+$ (cd _build/default && /usr/bin/ocamlc.opt -opaque -g -bin-annot -I bin/.main.eobjs/byte -I /home/co1010/.opam/default/lib/animate -I /home/co1010/.opam/default/lib/cairo2 -I /home/co1010/.opam/default/lib/cairo2-gtk -I /home/co1010/.opam/default/lib/lablgtk2 -I /usr/lib/ocaml/threads -no-alias-deps -opaque -o bin/.main.eobjs/byte/dune__exe__Main.cmo -c -impl bin/main.ml)
+$ (cd _build/default && /usr/bin/ocamlopt.opt -opaque -g -I bin/.main.eobjs/byte -I bin/.main.eobjs/native -I /home/co1010/.opam/default/lib/animate -I /home/co1010/.opam/default/lib/cairo2 -I /home/co1010/.opam/default/lib/cairo2-gtk -I /home/co1010/.opam/default/lib/lablgtk2 -I /usr/lib/ocaml/threads -intf-suffix .ml -no-alias-deps -opaque -o bin/.main.eobjs/native/dune__exe__Main.cmx -c -impl bin/main.ml)
+$ (cd _build/default && /usr/bin/ocamlopt.opt -opaque -g -o bin/main.exe /usr/lib/ocaml/unix.cmxa -I /usr/lib/ocaml /usr/lib/ocaml/threads/threads.cmxa -I /usr/lib/ocaml /home/co1010/.opam/default/lib/lablgtk2/lablgtk.cmxa /home/co1010/.opam/default/lib/lablgtk2/gtkThread.cmx -I /home/co1010/.opam/default/lib/lablgtk2 /home/co1010/.opam/default/lib/animate/color.cmxa -I /home/co1010/.opam/default/lib/animate /usr/lib/ocaml/bigarray.cmxa -I /usr/lib/ocaml /home/co1010/.opam/default/lib/cairo2/cairo.cmxa -I /home/co1010/.opam/default/lib/cairo2 /home/co1010/.opam/default/lib/cairo2-gtk/cairo_gtk.cmxa -I /home/co1010/.opam/default/lib/cairo2-gtk /home/co1010/.opam/default/lib/animate/image.cmxa -I /home/co1010/.opam/default/lib/animate /home/co1010/.opam/default/lib/animate/animate.cmxa -I /home/co1010/.opam/default/lib/animate /home/co1010/.opam/default/lib/animate/lib.cmxa -I /home/co1010/.opam/default/lib/animate bin/.main.eobjs/native/dune__exe__Main.cmx)
