@@ -33,10 +33,18 @@ type model = { state : state
              ; count : count
              }
 
+type input = | UpArrow
+             | DownArrow
+             | LeftArrow
+             | RightArrow
+             | None
+
 type model2048 = { board : int array array
                  ; isWin : bool
                  ; isLoss : bool
+                 ; lastInput : input
                  }
+
 
 let getFile () =
   Lib.fmt "%s/%s" (Unix.getcwd()) Sys.argv.(1)
@@ -81,7 +89,7 @@ let sumNeighbors colony i j =
   sum
 
 (* update : model -> model *)
-let update model =
+(* let update model =
   if model.state = Paused then model else
   let colony = model.colony in
   let rows = Array.length colony in
@@ -109,12 +117,12 @@ let update model =
   ; n = model.n - 1
   ; colony = newColony
   ; count = newCount
-  }
+  } *)
 
 
 
 (* view : model -> Image.t *)
-let view model =
+(* let view model =
   let colony = model.colony in
   let rows = Array.length colony in
   let cols = Array.length colony.(0) in
@@ -130,7 +138,7 @@ let view model =
       image.contents <- Image.placeImage cube (x, y) !image
     done;
   done;
-  !image
+  !image *)
 
 (* finished : model -> bool *)
 let finished model =
@@ -144,7 +152,7 @@ let makeWorkSpace colony =
   Array.make_matrix rows cols 0
 
 (* makeModel : int -> string -> model *)
-let makeModel n filename =
+(* let makeModel n filename =
   let colony = readColony filename in
   let workSpace = makeWorkSpace colony
   in
@@ -152,35 +160,95 @@ let makeModel n filename =
   ; n
   ; colony
   ; count = workSpace
-  }
+  } *)
+
+    (*++++++++++++++++++++++++++++++++++++++++++ Our Program ++++++++++++++++++++++++++++*)
+
+(*NB might be an error in the big funcion below where with index out of bounds
+  *)
+(*upArrow : model -> model*)
+let upArrow model =
+  for row = 1 to 4 do
+    for col = 1 to 4 do
+      if model.board.(row).(col) = model.board.(row - 1).(col) then
+        begin
+          (model.board.(row).(col) <- model.board.(row).(col) * 2;)
+        end
+      else ();
+      if model.board.(row).(col) = 0 then
+        begin
+         if model.board.(row - 1).(col) = model.board.(row - 2).(col) then
+           (model.board.(row - 1).(col) <- model.board.(row - 1).(col) * 2;)
+         else
+           (model.board.(row).(col) <- model.board.(row - 1).(col);)
+       end
+    done ;
+  done ;
+  model
+
+
+
+
+let update model =
+  match model.lastInput with
+  | UpArrow -> upArrow model
+  | DownArrow -> model
+  | LeftArrow -> model
+  | RightArrow -> model
+  | None -> model
+
 
 
 (*random2and4 : unit -> int*)
 (*returns either a 0, 2, or 4 to be added to a empty square,
   not implemented yet b/c I want to figure out the randomness factors for
   each possible return *)
-let random2and4 = 0
+let either2or4 =
+  let randInt = Random.int 10 in
+  match randInt <= 9 with
+  | true -> 2
+  | false -> 4
 
-(*populateBoard : unit -> model2048.board*)
-let initialBoard =
-  let board = Array.make_matrix 6 6 0 in
-    for i = 1 to 5 do (*can make this more general if needed, but just used fix numbers since the board dimensions are known*)
-      for j = 1 to 5 do
-        let random = random2and4 in
-        board.(i).(j) <- random;
-      done ;
-    done
-  ; board
+(*populate2and4 : model2048.board -> unit*)
+let populate2and4 model =
+  let zeroLocalsRef = ref [||] in
+  for row = 1 to 4 do
+    for col = 1 to 4 do
+      if model.board.(row).(col) = 0 then
+        (zeroLocalsRef := Array.append !zeroLocalsRef [|(row, col)|];)
+    done ;
+  done ;
+  let zeroLocals = !zeroLocalsRef in
+  let zeroCount = Array.length zeroLocals in
+  let whichSquare = Random.int zeroCount in
+  let whichNumber = either2or4 in
+  let xandy = zeroLocals.(whichSquare) in
+  let x = fst(xandy) in
+  let y = snd(xandy) in
+  model.board.(x).(y) <- whichNumber;
+  ()
+
+let blankModel =
+  let initBoard = Array.make_matrix 6 6 0 in
+  let initWin = false in
+  let initLoss = false in
+  { board = initBoard
+  ; isWin = initWin
+  ; isLoss = initLoss
+  ; lastInput = None
+  }
 
 (*makeModel2048 : unit -> model2048*)
 let makeModel2048 =
-  let initialboard = initialBoard in
-  let initWin = false in
-  let initLoss = false in
-  { board = initialboard
-  ; isWin = initWin
-  ; isLoss = initLoss
-  }
+  let blankModel = blankModel in
+  populate2and4 blankModel
+
+
+(*Things that can go wrong
+  - index out of bounds with any for loops
+  - I tried to adjust the for loops to look at the middle fourxfour square
+    by saying for i = 1 to 4 do, in order to adjust for fact that array matrixes
+  are indexed from 0 to 5, but htat may be wrong*)
 
 
 let go n filename =
