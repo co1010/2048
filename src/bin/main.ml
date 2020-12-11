@@ -78,7 +78,7 @@ let populate2and4 model =
 (* Checks if the tiles adjacent to board.(i).(j) match the value of board.(i).(j). *)
 (* Returns true if any of them do, false if none of them match. *)
 (* checkAdjTilesMatch : int array array -> int -> int -> bool *)
-let checkAdjTilesMatch board i j = 
+let checkAdjTilesMatch board i j =
   let equal = ref false in
   let tile = board.(i).(j) in
   if      tile = board.(i+1).(j) then equal := true
@@ -108,23 +108,50 @@ let checkGameOver model =
   else Loss
 
 
+let printerArray a =
+  (* for x = 1 to 4 do
+    Lib.pfmt "[";
+    for y = 1 to 4 do
+      Lib.pfmt "%i, %i; " x y;
+    done;
+    Lib.pfmt "];\n"
+  done;
+  Lib.pfmt "\n"; *)
+  for i = 1 to 4 do
+    Lib.pfmt "[";
+    for j = 1 to 4 do
+      Lib.pfmt "%i; " a.(i).(j);
+    done;
+    Lib.pfmt "];\n"
+  done;
+  Lib.pfmt "\n";
+  ()
+
 (*rightCond : model -> model*)
 let upCond model =
   for row = 1 to 4 do (*maybe we only have to do the first three rows, anthing in the bottom row will be moved up anyways*)
-      for col = 1 to 4 do
-        let rowBelow = row - 1 in
-        if model.board.(row).(col) = 0 then
-          begin
-            model.board.(row).(col) <- model.board.(rowBelow).(col);
-            model.board.(rowBelow).(col) <- 0;
-          end
-      done;
+    for col = 1 to 4 do
+      let () = printerArray model.board in
+      Lib.pfmt "row %i col %i item %i \n" row col model.board.(row).(col);
+      if model.board.(row).(col) = 0 then
+        (
+        Lib.pfmt "fonud zero \n";
+        for k = (row + 1) to 4 do
+          Lib.pfmt "row %i k %i col %i item %i \n" row k col model.board.(row).(k);
+          if model.board.(row).(k) <> 0 then
+            (Lib.pfmt "found none zero \n";
+            model.board.(row).(col) <- model.board.(row).(k);
+            Lib.pfmt " <>  row %i col %i k %i origVal %i \n" row col k model.board.(row).(col);
+             model.board.(row).(k) <- 0;)
+        done;)
     done;
+  done;
   model
+
 
 (*downCond : model -> model*)
 let downCond model =
-  for row = 1 to 4 do (*maybe we only have to do the first three rows, anthing in the top row will be down up anyways*)
+  (* for row = 1 to 4 do (*maybe we only have to do the first three rows, anthing in the top row will be down up anyways*)
       for col = 1 to 4 do
         let invRow = 5 - row in
         let rowAbove = invRow - 1 in
@@ -134,12 +161,12 @@ let downCond model =
             model.board.(rowAbove).(col) <- 0;
           end
       done;
-    done;
+    done; *)
   model
 
 (*leftCond : model -> model*)
 let leftCond model =
-    for row = 1 to 4 do
+    (* for row = 1 to 4 do
         for col = 1 to 4 do
           let colRight = col + 1 in
           if model.board.(row).(col) = 0 then
@@ -148,12 +175,12 @@ let leftCond model =
               model.board.(row).(colRight) <- 0;
             end
         done;
-      done;
+      done; *)
     model
 
 (*rightCond : model -> model*)
 let rightCond model =
-for row = 1 to 4 do
+(* for row = 1 to 4 do
     for col = 1 to 4 do
       let invCol = 5 - col in
       let colLeft = invCol - 1 in
@@ -163,7 +190,7 @@ for row = 1 to 4 do
           model.board.(row).(colLeft) <- 0;
         end
     done;
-  done;
+  done; *)
 model
 
 
@@ -226,7 +253,7 @@ let downArrow model =
   model
 
 (*leftArrow : model -> model*)
-let leftArrow model = 
+let leftArrow model =
   let board = model.board in
   for row = 1 to 4 do
     for col = 1 to 4 do
@@ -272,12 +299,12 @@ let rightArrow model =
   model
 
 
-let calculatePos i j = 
+let calculatePos i j =
   let x = 10.+.(float (i-1))*.(((displayWidth-.50.)/.4.)+.10.) in
   let y = 10.+.(float (j-1))*.(((displayHeight-.50.)/.4.)+.10.) in
   (x, y)
 
-let getColor num = 
+let getColor num =
   let rec loop num count =
     match num = 1 with
     | true -> count
@@ -287,12 +314,12 @@ let getColor num =
 
 
 (* view : model -> Image.t *)
-let view model = 
+let view model =
   let background = ref (Image.rectangle displayWidth displayHeight backColor) in
   let tileback = ref (Image.rectangle 0. 0. noTile) in
   for row = 1 to 4 do
     for col = 1 to 4 do
-      if (model.board.(row).(col)) = 0 then 
+      if (model.board.(row).(col)) = 0 then
         tileback := Image.rectangle ((displayWidth-.50.)/.4.) ((displayHeight-.50.)/.4.) noTile
       else
         tileback := Image.rectangle ((displayWidth-.50.)/.4.) ((displayHeight-.50.)/.4.) (getColor model.board.(row).(col));
@@ -309,9 +336,9 @@ let view model =
 
 (* This function is called when a key is pressed, it's passed the model and the string of the key that was pressed *)
 (* keyPress : model -> key -> model *)
-let keyPress model key = 
+let keyPress model key =
   let () = Format.printf "%s\n" key in
-  let modelAfterPress = 
+  let modelAfterPress =
     match key with
     | "up" -> upArrow model
     | "down" -> downArrow model
@@ -319,7 +346,9 @@ let keyPress model key =
     | "right" -> rightArrow model
     | _ -> model
   in
-  let finalModel = populate2and4 modelAfterPress in
+  let () = printerArray modelAfterPress.board in
+  let modelAfterCondense = condenseNumbers modelAfterPress key in
+  let finalModel = populate2and4 modelAfterCondense in
   let isOver = checkGameOver finalModel in
   { board = finalModel.board
   ; isOver = isOver
@@ -342,7 +371,7 @@ let makeModel2048 =
 (* finished : model -> bool *)
 let finished model = if model.isOver = Loss || model.isOver = Win then true else false
 
-let viewLast model = 
+let viewLast model =
   let boardImage = view model in
   match model.isOver = Loss with
   | true -> let text = Image.text "You Lose." Color.red in
