@@ -14,8 +14,20 @@
 let displayWidth = 800.
 let displayHeight = displayWidth
 
-let cubeColor = Color.orange
-let noCube = Color.white
+let margin = 20.
+let backColor = Color.makeColor 187 173 160
+let noTile = Color.makeColor 238 228 218
+let colors = [|(Color.makeColor 238 228 218) ;
+               (Color.makeColor 238 225 201) ;
+               (Color.makeColor 243 178 122) ;
+               (Color.makeColor 246 150 100) ;
+               (Color.makeColor 247 124 95) ;
+               (Color.makeColor 247 95 59) ;
+               (Color.makeColor 237 208 115) ;
+               (Color.makeColor 237 204 98) ;
+               (Color.makeColor 237 201 80) ;
+               (Color.makeColor 237 197 63) ;
+               (Color.makeColor 237 194 46)|]
 
 type gameOver = | False
                 | Win
@@ -260,21 +272,34 @@ let rightArrow model =
   model
 
 
+let calculatePos i j = 
+  let x = 10.+.(float (i-1))*.(((displayWidth-.50.)/.4.)+.10.) in
+  let y = 10.+.(float (j-1))*.(((displayHeight-.50.)/.4.)+.10.) in
+  (x, y)
+
+let getColor num = 
+  let rec loop num count =
+    match num = 1 with
+    | true -> count
+    | false -> loop (num/2) (count+1) in
+  let log = loop num 0 in
+  colors.(log+1)
+
 
 (* view : model -> Image.t *)
 let view model = 
-  let background = ref (Image.rectangle displayWidth displayHeight noCube) in
-  let tileback = ref (Image.rectangle 0. 0. cubeColor) in
+  let background = ref (Image.rectangle displayWidth displayHeight backColor) in
+  let tileback = ref (Image.rectangle 0. 0. noTile) in
   for row = 1 to 4 do
     for col = 1 to 4 do
       if (model.board.(row).(col)) = 0 then 
-        tileback := Image.rectangle (displayWidth/.4.) (displayHeight/.4.) noCube
+        tileback := Image.rectangle ((displayWidth-.50.)/.4.) ((displayHeight-.50.)/.4.) noTile
       else
-        tileback := Image.rectangle (displayWidth/.4.) (displayHeight/.4.) cubeColor;
+        tileback := Image.rectangle ((displayWidth-.50.)/.4.) ((displayHeight-.50.)/.4.) (getColor model.board.(row).(col));
       let text = Printf.sprintf "%d" model.board.(row).(col) in
       let textImage = Image.text text Color.black in
-      let tile = Image.placeImage textImage (((displayWidth/.4.)/.2.), ((displayHeight/.4.)/.2.)) !tileback in
-      let newImage = Image.placeImage tile ((float (row-1))*.(displayWidth/.4.), (float (col-1))*.(displayHeight/.4.)) !background in
+      let tile = Image.placeImage textImage ((((displayWidth-.50.)/.4.)/.2.), (((displayHeight-.50.)/.4.)/.2.)) !tileback in
+      let newImage = Image.placeImage tile (calculatePos row col) !background in
       background := newImage
     done ;
   done ;
@@ -319,9 +344,11 @@ let finished model = if model.isOver = Loss || model.isOver = Win then true else
 
 let viewLast model = 
   let boardImage = view model in
-  let loseText = Image.text "You Lose" Color.red
-  in
-  Image.placeImage loseText ((displayWidth/.2.)-.30., (displayHeight/.2.)) boardImage
+  match model.isOver = Loss with
+  | true -> let text = Image.text "You Lose." Color.red in
+            Image.placeImage text ((displayWidth/.2.)-.40., (displayHeight/.2.)-.10.) boardImage
+  | false -> let text = Image.text "You Win!" Color.red in
+            Image.placeImage text ((displayWidth/.2.)-.40., (displayHeight/.2.)-.10.) boardImage
 
 (*Things that can go wrong
   - index out of bounds with any for loops
