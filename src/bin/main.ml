@@ -109,89 +109,96 @@ let checkGameOver model =
 
 
 let printerArray a =
-  (* for x = 1 to 4 do
-    Lib.pfmt "[";
-    for y = 1 to 4 do
-      Lib.pfmt "%i, %i; " x y;
-    done;
-    Lib.pfmt "];\n"
-  done;
-  Lib.pfmt "\n"; *)
   for i = 1 to 4 do
     Lib.pfmt "[";
     for j = 1 to 4 do
       Lib.pfmt "%i; " a.(i).(j);
     done;
-    Lib.pfmt "];\n"
+    Lib.pfmt "];\n";
   done;
   Lib.pfmt "\n";
   ()
 
 (*rightCond : model -> model*)
 let upCond model =
-  for row = 1 to 4 do (*maybe we only have to do the first three rows, anthing in the bottom row will be moved up anyways*)
+  let board = model.board in
+  for row = 1 to 4 do
     for col = 1 to 4 do
-      let () = printerArray model.board in
-      Lib.pfmt "row %i col %i item %i \n" row col model.board.(row).(col);
-      if model.board.(row).(col) = 0 then
-        (
-        Lib.pfmt "fonud zero \n";
-        for k = (row + 1) to 4 do
-          Lib.pfmt "row %i k %i col %i item %i \n" row k col model.board.(row).(k);
-          if model.board.(row).(k) <> 0 then
-            (Lib.pfmt "found none zero \n";
-            model.board.(row).(col) <- model.board.(row).(k);
-            Lib.pfmt " <>  row %i col %i k %i origVal %i \n" row col k model.board.(row).(col);
-             model.board.(row).(k) <- 0;)
-        done;)
-    done;
-  done;
+      let tile = ref board.(row).(col) in
+      if !tile = 0 then (
+        for i = (col+1) to 5 do
+          if !tile = -1  || board.(row).(i) = 0 then ()
+          else(
+            board.(row).(col) <- board.(row).(i);
+            board.(row).(i) <- 0;
+            tile := -1;
+          )
+        done;
+      )
+    done ;
+  done ;
   model
 
 
 (*downCond : model -> model*)
 let downCond model =
-  (* for row = 1 to 4 do (*maybe we only have to do the first three rows, anthing in the top row will be down up anyways*)
-      for col = 1 to 4 do
-        let invRow = 5 - row in
-        let rowAbove = invRow - 1 in
-        if model.board.(invRow).(col) = 0 then
-          begin
-            model.board.(invRow).(col) <- model.board.(rowAbove).(col);
-            model.board.(rowAbove).(col) <- 0;
-          end
-      done;
-    done; *)
+  let board = model.board in
+  for row = 4 downto 1 do
+    for col = 4 downto 1 do
+      let tile = ref board.(row).(col) in
+      if !tile = 0 then (
+        for i = (col-1) downto 0 do
+          if !tile = -1  || board.(row).(i) = 0 then ()
+          else(
+            board.(row).(col) <- board.(row).(i);
+            board.(row).(i) <- 0;
+            tile := -1;
+          )
+        done;
+      )
+    done ;
+  done ;
   model
 
 (*leftCond : model -> model*)
 let leftCond model =
-    (* for row = 1 to 4 do
-        for col = 1 to 4 do
-          let colRight = col + 1 in
-          if model.board.(row).(col) = 0 then
-            begin
-              model.board.(row).(col) <- model.board.(row).(colRight);
-              model.board.(row).(colRight) <- 0;
-            end
+  let board = model.board in
+  for row = 1 to 4 do
+    for col = 1 to 4 do
+      let tile = ref board.(row).(col) in
+      if !tile = 0 then (
+        for i = (row+1) to 5 do
+          if !tile = -1  || board.(i).(col) = 0 then ()
+          else(
+            board.(row).(col) <- board.(i).(col);
+            board.(i).(col) <- 0;
+            tile := -1;
+          )
         done;
-      done; *)
-    model
+      )
+    done ;
+  done ;
+  model
 
 (*rightCond : model -> model*)
 let rightCond model =
-(* for row = 1 to 4 do
-    for col = 1 to 4 do
-      let invCol = 5 - col in
-      let colLeft = invCol - 1 in
-      if model.board.(row).(invCol) = 0 then
-        begin
-          model.board.(row).(invCol) <- model.board.(row).(colLeft);
-          model.board.(row).(colLeft) <- 0;
-        end
-    done;
-  done; *)
-model
+  let board = model.board in
+  for row = 4 downto 1 do
+    for col = 4 downto 1 do
+      let tile = ref board.(row).(col) in
+      if !tile = 0 then (
+        for i = (row-1) downto 0 do
+          if !tile = -1  || board.(i).(col) = 0 then ()
+          else(
+            board.(row).(col) <- board.(i).(col);
+            board.(i).(col) <- 0;
+            tile := -1;
+          )
+        done;
+      )
+    done ;
+  done ;
+  model
 
 
 (*condenseNumbers : model -> model*)
@@ -346,7 +353,6 @@ let keyPress model key =
     | "right" -> rightArrow model
     | _ -> model
   in
-  let () = printerArray modelAfterPress.board in
   let modelAfterCondense = condenseNumbers modelAfterPress key in
   let finalModel = populate2and4 modelAfterCondense in
   let isOver = checkGameOver finalModel in
