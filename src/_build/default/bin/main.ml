@@ -68,11 +68,73 @@ let populate2and4 model =
 let checkGameOver model = False
 
 
-(*needs implementing*)
+(*rightCond : model -> model*)
+let upCond model =
+  for row = 1 to 4 do (*maybe we only have to do the first three rows, anthing in the bottom row will be moved up anyways*)
+      for col = 1 to 4 do
+        let rowBelow = row - 1 in
+        if model.board.(row).(col) = 0 then
+          begin
+            model.board.(row).(col) <- model.board.(rowBelow).(col);
+            model.board.(rowBelow).(col) <- 0;
+          end
+      done;
+    done;
+  model
+
+(*downCond : model -> model*)
+let downCond model =
+  for row = 1 to 4 do (*maybe we only have to do the first three rows, anthing in the top row will be down up anyways*)
+      for col = 1 to 4 do
+        let invRow = 5 - row in
+        let rowAbove = invRow - 1 in
+        if model.board.(invRow).(col) = 0 then
+          begin
+            model.board.(invRow).(col) <- model.board.(rowAbove).(col);
+            model.board.(rowAbove).(col) <- 0;
+          end
+      done;
+    done;
+  model
+
+(*leftCond : model -> model*)
+let leftCond model =
+    for row = 1 to 4 do
+        for col = 1 to 4 do
+          let colRight = col + 1 in
+          if model.board.(row).(col) = 0 then
+            begin
+              model.board.(row).(col) <- model.board.(row).(colRight);
+              model.board.(row).(colRight) <- 0;
+            end
+        done;
+      done;
+    model
+
+(*rightCond : model -> model*)
+let rightCond model =
+for row = 1 to 4 do
+    for col = 1 to 4 do
+      let invCol = 5 - col in
+      let colLeft = invCol - 1 in
+      if model.board.(row).(invCol) = 0 then
+        begin
+          model.board.(row).(invCol) <- model.board.(row).(colLeft);
+          model.board.(row).(colLeft) <- 0;
+        end
+    done;
+  done;
+model
+
+
 (*condenseNumbers : model -> model*)
-let condenseNumbers model = model
-
-
+let condenseNumbers model string =
+  match string with
+  | "up" -> upCond model
+  | "down" -> downCond model
+  | "left" -> leftCond model
+  | "right" -> rightCond model
+  | _ -> model
 
 (*NB may be some nonsyntax errors below but everything works out in theory
   *)

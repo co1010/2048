@@ -45,6 +45,7 @@ let either2or4 () =
 
 (*populate2and4 : model -> model *)
 let populate2and4 model =
+  Random.self_init ();
   let zeroLocalsRef = ref [||] in
   for row = 1 to 4 do
     for col = 1 to 4 do
@@ -62,10 +63,37 @@ let populate2and4 model =
   model.board.(x).(y) <- whichNumber;
   model
 
+(* Checks if the tiles adjacent to board.(i).(j) match the value of board.(i).(j). *)
+(* Returns true if any of them do, false if none of them match. *)
+(* checkAdjTilesMatch : int array array -> int -> int -> bool *)
+let checkAdjTilesMatch board i j = 
+  let equal = ref false in
+  let tile = board.(i).(j) in
+  if      tile = board.(i+1).(j) then equal := true
+  else if tile = board.(i-1).(j) then equal := true
+  else if tile = board.(i).(j+1) then equal := true
+  else if tile = board.(i).(j-1) then equal := true;
+  !equal
 
-(*needs implementing*)
+
 (* checkGameOver : model -> gameOver *)
-let checkGameOver model = False
+let checkGameOver model =
+  let board = model.board in
+  let gameContinue = ref false in
+  let win = ref false in
+  for row = 1 to 4 do
+    for col = 1 to 4 do
+      if not (!gameContinue || !win) then (
+        let tile = board.(row).(col) in
+        if tile = 0 then gameContinue := true
+        else if tile = 2048 then win := true
+        else if checkAdjTilesMatch board row col then gameContinue := true
+      )
+    done ;
+  done ;
+  if !gameContinue then False
+  else if !win then Win
+  else Loss
 
 
 (*rightCond : model -> model*)
@@ -136,18 +164,27 @@ let condenseNumbers model string =
   | "right" -> rightCond model
   | _ -> model
 
-(*NB may be some nonsyntax errors below but everything works out in theory
-  *)
+
+
 (*upArrow : model -> model*)
 let upArrow model =
+  let board = model.board in
   for row = 1 to 4 do
     for col = 1 to 4 do
-        let rowBelow = row - 1 in
-        if model.board.(row).(col) = model.board.(rowBelow).(col) then
-          begin
-            (model.board.(row).(col) <- model.board.(row).(col) * 2;
-             model.board.(rowBelow).(col) <- 0;)
-          end
+      let tile = ref board.(row).(col) in
+      if !tile != 0 then (
+        for i = (col+1) to 5 do
+          if !tile = -1 || board.(row).(i) = 0 then ()
+          else if !tile = board.(row).(i) then (
+            board.(row).(col) <- !tile*2;
+            board.(row).(i) <- 0;
+            tile := -1;
+          )
+          else (
+            tile := -1;
+          )
+        done;
+      )
     done ;
   done ;
   model
@@ -155,15 +192,23 @@ let upArrow model =
 
 (*downArrow : model -> model*)
 let downArrow model =
-  for row = 1 to 4 do
-    for col = 1 to 4 do
-      let invRow = 5 - row in
-      let rowAbove = invRow - 1 in
-      if model.board.(invRow).(col) = model.board.(rowAbove).(col) then
-          begin
-            (model.board.(invRow).(col) <- model.board.(invRow).(col) * 2;
-             model.board.(rowAbove).(col) <- 0;)
-          end
+  let board = model.board in
+  for row = 4 downto 1 do
+    for col = 4 downto 1 do
+      let tile = ref board.(row).(col) in
+      if !tile != 0 then (
+        for i = (col-1) downto 0 do
+          if !tile = -1 || board.(row).(i) = 0 then ()
+          else if !tile = board.(row).(i) then (
+            board.(row).(col) <- !tile*2;
+            board.(row).(i) <- 0;
+            tile := -1;
+          )
+          else (
+            tile := -1;
+          )
+        done;
+      )
     done ;
   done ;
   model
@@ -193,18 +238,26 @@ let leftArrow model =
 
 (*rightArrow : model -> model*)
 let rightArrow model =
-for row = 1 to 4 do
-  for col = 1 to 4 do
-    let invCol = 5 - col in
-    let colLeft = invCol - 1 in (*right??*)
-    if model.board.(row).(invCol) = model.board.(row).(colLeft) then
-        begin
-          (model.board.(row).(invCol) <- model.board.(row).(invCol) * 2;
-           model.board.(row).(colLeft) <- 0;)
-        end
+  let board = model.board in
+  for row = 4 downto 1 do
+    for col = 4 downto 1 do
+      let tile = ref board.(row).(col) in
+      if !tile != 0 then (
+        for i = (row-1) downto 0 do
+          if !tile = -1 || board.(i).(col) = 0 then ()
+          else if !tile = board.(i).(col) then (
+            board.(row).(col) <- !tile*2;
+            board.(i).(col) <- 0;
+            tile := -1;
+          )
+          else (
+            tile := -1;
+          )
+        done;
+      )
+    done ;
   done ;
-done ;
-model
+  model
 
 
 
@@ -247,22 +300,6 @@ let keyPress model key =
   ; isOver = isOver
   }
 
-(*NB needs implementing*)
-(*winCheck : model -> model*)
-let winCheck model = model
-
-(*NB needs implementing*)
-(*lossCheck : model -> model*)
-let lossCheck model = model
-
-(*update : model -> model*)
-(* let update model =
-  let addMatchedModel = addMatching model in
-  let condensedModel = condenseNumbers addMatchedModel in
-  let winCheckedModel = winCheck condensedModel in
-  let lossCheckedModel = lossCheck winCheckedModel
-  in
-  lossCheckedModel *)
 
 
 let blankModel =
@@ -278,7 +315,13 @@ let makeModel2048 =
 
 
 (* finished : model -> bool *)
-let finished model = false
+let finished model = if model.isOver = Loss || model.isOver = Win then true else false
+
+let viewLast model = 
+  let boardImage = view model in
+  let loseText = Image.text "You Lose" Color.red
+  in
+  Image.placeImage loseText ((displayWidth/.2.)-.30., (displayHeight/.2.)) boardImage
 
 (*Things that can go wrong
   - index out of bounds with any for loops
@@ -297,5 +340,6 @@ let go n =
                  ~view: view
                  ~onKeyPress: keyPress
                  ~stopWhen: finished
+                 ~viewLast: viewLast
 
 let _ = go 1000
