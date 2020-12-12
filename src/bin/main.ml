@@ -15,8 +15,8 @@ let displayWidth = 800.
 let displayHeight = displayWidth
 
 let margin = 20.
-let backColor = Color.makeColor 187 173 160
-let noTile = Color.makeColor 238 228 218
+let backColor = Color.makeColor 119 110 101
+let noTile = Color.makeColor 187 173 160
 let colors = [|(Color.makeColor 238 228 218) ;
                (Color.makeColor 238 225 201) ;
                (Color.makeColor 243 178 122) ;
@@ -317,22 +317,26 @@ let getColor num =
     | true -> count
     | false -> loop (num/2) (count+1) in
   let log = loop num 0 in
-  colors.(log+1)
+  colors.(log-1)
 
 
 (* view : model -> Image.t *)
 let view model =
   let background = ref (Image.rectangle displayWidth displayHeight backColor) in
   let tileback = ref (Image.rectangle 0. 0. noTile) in
+  let text = ref "" in
   for row = 1 to 4 do
     for col = 1 to 4 do
-      if (model.board.(row).(col)) = 0 then
-        tileback := Image.rectangle ((displayWidth-.50.)/.4.) ((displayHeight-.50.)/.4.) noTile
-      else
+      if (model.board.(row).(col)) = 0 then (
+        tileback := Image.rectangle ((displayWidth-.50.)/.4.) ((displayHeight-.50.)/.4.) noTile;
+        text := ""
+      )
+      else (
         tileback := Image.rectangle ((displayWidth-.50.)/.4.) ((displayHeight-.50.)/.4.) (getColor model.board.(row).(col));
-      let text = Printf.sprintf "%d" model.board.(row).(col) in
-      let textImage = Image.text text Color.black in
-      let tile = Image.placeImage textImage ((((displayWidth-.50.)/.4.)/.2.), (((displayHeight-.50.)/.4.)/.2.)) !tileback in
+        text := Printf.sprintf "%d" model.board.(row).(col);
+      );
+      let textImage = Image.text !text Color.black in
+      let tile = Image.placeImage textImage ((((displayWidth-.50.)/.4.)/.2.)-.10., (((displayHeight-.50.)/.4.)/.2.)) !tileback in
       let newImage = Image.placeImage tile (calculatePos row col) !background in
       background := newImage
     done ;
@@ -344,7 +348,12 @@ let view model =
 (* This function is called when a key is pressed, it's passed the model and the string of the key that was pressed *)
 (* keyPress : model -> key -> model *)
 let keyPress model key =
-  let () = Format.printf "%s\n" key in
+  let oldBoard = Array.make_matrix 6 6 0 in
+  for row = 1 to 4 do
+    for col = 1 to 4 do
+      oldBoard.(row).(col) <- model.board.(row).(col)
+    done ;
+  done ;
   let modelAfterPress =
     match key with
     | "up" -> upArrow model
@@ -354,11 +363,19 @@ let keyPress model key =
     | _ -> model
   in
   let modelAfterCondense = condenseNumbers modelAfterPress key in
+  let same = ref true in
+  for row = 1 to 4 do
+    for col = 1 to 4 do
+      if !same && oldBoard.(row).(col) != modelAfterCondense.board.(row).(col) then
+        same := false
+    done ;
+  done ;
+  if !same then model else (
   let finalModel = populate2and4 modelAfterCondense in
   let isOver = checkGameOver finalModel in
   { board = finalModel.board
   ; isOver = isOver
-  }
+  } )
 
 
 
